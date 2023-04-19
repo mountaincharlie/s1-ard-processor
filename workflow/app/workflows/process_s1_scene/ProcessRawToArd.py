@@ -35,7 +35,7 @@ class ProcessRawToArd(luigi.Task):
 
         return matchingFiles[0]
 
-    def getExpectedOutput(self, productPattern, outputRoot):
+    def getExpectedOutput(self, productPattern, outputRoot, dem_type):
         vv_path = os.path.join(os.path.join(outputRoot, productPattern), "VV/GEO")
         vh_path = os.path.join(os.path.join(outputRoot, productPattern), "VH/GEO")
         log_path = os.path.join(os.path.join(outputRoot, productPattern), "log_{}_PROCESSING_*.txt".format(productPattern))
@@ -43,24 +43,24 @@ class ProcessRawToArd(luigi.Task):
         expectedOutput = {
             'files': {
                 'VV': [
-                    os.path.join(vv_path, '{}_VV_Gamma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Gamma0_APGB_UTMWGS84_RTC_SpkRL.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Gamma0_APGB_UTMWGS84_RTC.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Gamma0_APGB_UTMWGS84_TC.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Sigma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Sigma0_APGB_UTMWGS84_RTC_SpkRL.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Sigma0_APGB_UTMWGS84_RTC.tif'.format(productPattern)),
-                    os.path.join(vv_path, '{}_VV_Sigma0_APGB_UTMWGS84_TC.tif'.format(productPattern))
+                    os.path.join(vv_path, '{0}_VV_Gamma0_{1}_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Gamma0_{1}_UTMWGS84_RTC_SpkRL.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Gamma0_{1}_UTMWGS84_RTC.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Gamma0_{1}_UTMWGS84_TC.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Sigma0_{1}_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Sigma0_{1}_UTMWGS84_RTC_SpkRL.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Sigma0_{1}_UTMWGS84_RTC.tif'.format(productPattern, dem_type)),
+                    os.path.join(vv_path, '{0}_VV_Sigma0_{1}_UTMWGS84_TC.tif'.format(productPattern, dem_type))
                 ],
                 'VH': [
-                    os.path.join(vh_path, '{}_VH_Gamma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Gamma0_APGB_UTMWGS84_RTC_SpkRL.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Gamma0_APGB_UTMWGS84_RTC.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Gamma0_APGB_UTMWGS84_TC.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Sigma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Sigma0_APGB_UTMWGS84_RTC_SpkRL.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Sigma0_APGB_UTMWGS84_RTC.tif'.format(productPattern)),
-                    os.path.join(vh_path, '{}_VH_Sigma0_APGB_UTMWGS84_TC.tif'.format(productPattern))
+                    os.path.join(vh_path, '{0}_VH_Gamma0_{1}_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Gamma0_{1}_UTMWGS84_RTC_SpkRL.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Gamma0_{1}_UTMWGS84_RTC.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Gamma0_{1}_UTMWGS84_TC.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Sigma0_{1}_UTMWGS84_RTC_SpkRL_dB.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Sigma0_{1}_UTMWGS84_RTC_SpkRL.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Sigma0_{1}_UTMWGS84_RTC.tif'.format(productPattern, dem_type)),
+                    os.path.join(vh_path, '{0}_VH_Sigma0_{1}_UTMWGS84_TC.tif'.format(productPattern, dem_type))
                 ],
                 'log': log_path
             }
@@ -107,7 +107,13 @@ class ProcessRawToArd(luigi.Task):
         outputRoot = configureProcessingInfo["parameters"]["s1_ard_temp_output_dir"]
         productPattern = configuration["productPattern"]
 
-        expectedOutput = self.getExpectedOutput(productPattern, outputRoot)
+        # whether using external dem or SRTM90 dem
+        if configureProcessingInfo["arguments"].split(" ")[3] == "1":
+            dem_type = "APGB"
+        else:
+            dem_type = "SRTM90"
+
+        expectedOutput = self.getExpectedOutput(productPattern, outputRoot, dem_type)
         
         # Runs shell process to create the ard products
         retcode = 0
