@@ -18,9 +18,12 @@ class ConfigureProcessing(luigi.Task):
     memoryLimit = luigi.IntParameter()
 
     def run(self):
+        # add if statment so that if no dem is found, then the cut dem is not run
+        log.info(f'----------- WHAT IS THIS: self.input(): {self.input()}')  # what is self input?
         cutDemInfo = {}
         with self.input()[0].open('r') as cutDEM:
             cutDemInfo = json.load(cutDEM)
+            log.info(f'WHAT IS THIS: cutDemInfo: {cutDemInfo}')  # what is cutDemInfo?
 
         copyInputFileInfo = {}
         with self.input()[1].open('r') as copyInputFile:

@@ -31,3 +31,6 @@ RUN chmod +x update-snap.sh \
 
 # Configure snap toolbox
 COPY config/app/snap/bin/gpt.vmoptions ./snap/bin
+
+COPY . /app
+WORKDIR /app

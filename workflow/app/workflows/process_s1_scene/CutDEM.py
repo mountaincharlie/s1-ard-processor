@@ -60,6 +60,7 @@ class CutDEM(luigi.Task):
         with manifestLoader.output().open('r') as manifestFile:
             manifest = manifestFile.read()
 
+        # can you write an if statement to bypass the cutDEM here?
         cutLine = {}
 
         cutDemPathRoot = wc.createWorkingPath(configuration["workingRoot"], 'dem')
