@@ -27,7 +27,13 @@ class ReprojectToTargetSrs(luigi.Task):
     paths = luigi.DictParameter()
     testProcessing = luigi.BoolParameter()
 
-    reprojectionFilePattern = "^[\w\/-]+_Gamma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif"
+    # reprojectionFilePattern = "^[\w\/-]+_Gamma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif"  old hardcoded method
+    def create_regex(dem_type):
+        print('RUNNING THE CREATE REGEX PROCESS')
+        reprojectionFilePattern = fr"^[\w\/-]+_Gamma0_{dem_type}_UTMWGS84_RTC_SpkRL_dB.tif"
+        regex_object = re.compile(reprojectionFilePattern)
+        return regex_object
+
 
     def reprojectPolorisation(self, polarisation, sourceFile, state, manifest, configuration, inputFileName, outputRoot):
         outputPath = joinPath(outputRoot, polarisation)
@@ -84,8 +90,17 @@ class ReprojectToTargetSrs(luigi.Task):
         manifest = ''
         with manifestLoader.output().open('r') as manifestFile:
             manifest = manifestFile.read()
+        
+        # whether using external dem or SRTM90 dem
+        if configureProcessingInfo["arguments"].split(" ")[3] == "1":
+            dem_type = "APGB"
+        else:
+            dem_type = "SRTM90"
 
-        p = re.compile(self.reprojectionFilePattern)
+        print('IS THIS WHERE IT IS FAILING? - need APGB to not be hardcoded')
+        # p = re.compile(self.reprojectionFilePattern)  old hardcoded method
+        p = self.create_regex(dem_type)
+        print(f'p is: {p}')
 
         state = {
             "reprojectedFiles": {
