@@ -28,7 +28,7 @@ class ReprojectToTargetSrs(luigi.Task):
     testProcessing = luigi.BoolParameter()
 
     # reprojectionFilePattern = "^[\w\/-]+_Gamma0_APGB_UTMWGS84_RTC_SpkRL_dB.tif"  old hardcoded method
-    def create_regex(self, dem_type):
+    def create_regex(dem_type):
         print('RUNNING THE CREATE REGEX PROCESS')
         reprojectionFilePattern = fr"^[\w\/-]+_Gamma0_{dem_type}_UTMWGS84_RTC_SpkRL_dB.tif"
         regex_object = re.compile(reprojectionFilePattern)
